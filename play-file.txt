@@ -1,1 +1,5 @@
 I added a line - for my first commit
+I added a second line
+I added a third line
+I added a fourth line
+I added a fifth line
