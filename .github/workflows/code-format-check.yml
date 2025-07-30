@@ -1,0 +1,23 @@
+name: Code Format Check
+run-name: ${{ github.actor }} is running code format checks 🔍
+on: 
+    push:
+        branches:
+          - main
+jobs:
+  ruff-check:
+    name: Ruff Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          
+      - name: Install Ruff
+        run: pip install ruff
+        
+      - name: Run Ruff Format Check
+        run: ruff check .
