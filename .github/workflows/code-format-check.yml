@@ -3,6 +3,10 @@ run-name: ${{ github.actor }} is running code format checks 🔍
 on: 
     push:
         branches:
+          - git-playground  
+          - main
+    pull_request:
+        branches: 
           - main
 jobs:
   ruff-check:
