@@ -1,26 +1,18 @@
-name: Code Format Check
-run-name: ${{ github.actor }} is running code format checks 🔍
-on: 
-    push:
-        branches:
-            - '**'
-    pull_request:
-        branches: 
-          - '**'
+name: CI
+on: push
 jobs:
-  ruff-check:
-    name: Ruff Format Check
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
-          
-      - name: Install Ruff
-        run: pip install ruff
-        
-      - name: Run Ruff Format Check
-        run: ruff check .
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+      # Update output format to enable automatic inline annotations.
+      - name: Run Ruff
+        run: ruff check --output-format=github .
