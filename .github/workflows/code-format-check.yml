@@ -1,4 +1,5 @@
-name: Ruff
+name: Code Format Check
+run-name: Running code format checks 🔍
 on: [ push, pull_request ]
 jobs:
   ruff:
