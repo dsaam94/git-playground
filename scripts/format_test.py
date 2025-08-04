@@ -1,5 +1,4 @@
 ﻿from pathlib import Path
-import os
 class TestFormatting:
     def test_format_for_my_ugliest_function(self):
         return (
