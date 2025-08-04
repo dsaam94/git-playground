@@ -25,7 +25,7 @@ class TestFormatting:
     def test_empty_function_with_horrible_spacing(self):
         result = self.empty_function()
 
-        assert result == None, "Empty function should return None"
+        assert result is None, "Empty function should return None"
 
     def test_with_extremely_long_line_that_definitely_violates_pep8_and_will_make_ruff_very_unhappy_because_its_way_too_long(
         self,
