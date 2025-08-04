@@ -7,5 +7,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
         with:
-            version: 'latest'
+            version: latest
             args: format --check .
