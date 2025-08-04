@@ -1,4 +1,5 @@
 ﻿from pathlib import Path
+import os
 class TestFormatting:
     def test_format_for_my_ugliest_function(self):
         return (
@@ -10,12 +11,7 @@ class TestFormatting:
 
     def test_path_construction_with_bad_formatting(self):
         expected_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "golden_tables"
-            / "DateType_Date&Time_Alignment_GT"
-            / "WEEK"
-            / "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
+            Path(__file__).parent.parent / ".github"/ "golden_tables"/ "DateType_Date&Time_Alignment_GT"/ "WEEK"/ "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
         )
 
         result = self.test_format_for_my_ugliest_function()
