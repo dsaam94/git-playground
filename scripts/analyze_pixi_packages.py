@@ -11,8 +11,8 @@ def main() -> int:
         return 0
 
     try:
-        with pixi_json_path.open("r", encoding="utf-8") as file_handle:
-            data = json.load(file_handle)
+        with pixi_json_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
 
         total_packages = 0
         environments = []
@@ -20,15 +20,18 @@ def main() -> int:
         if isinstance(data, dict):
             for environment_name, environment_data in data.items():
                 environments.append(environment_name)
-                if isinstance(environment_data, dict) and "packages" in environment_data:
+                if (
+                    isinstance(environment_data, dict)
+                    and "packages" in environment_data
+                ):
                     total_packages += len(environment_data["packages"])
 
         print(f"- **Total packages:** {total_packages}")
         print(f"- **Environments:** {environments}")
-        print(f"- **Configuration file:** pixi.toml")
 
     except Exception as error:  # noqa: BLE001
-        # Print a friendly message and exit successfully so the caller can choose how to handle it
+        # Print a friendly message and exit successfully so the caller can choose how
+        # to handle it
         print(f"Error analyzing packages: {error}")
         return 0
 
@@ -37,5 +40,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
