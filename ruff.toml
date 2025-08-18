@@ -4,3 +4,6 @@ line-length = 88
 
 [lint]
 select = ["E", "F", "W"]
+ignore = ["F501"]
+
+exclude = ["scripts/format_test.py"]
