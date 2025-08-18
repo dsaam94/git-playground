@@ -3,14 +3,14 @@ run-name: Scanning dependencies for security vulnerabilities 📦
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: "*"
     paths:
       - 'requirements.txt'
       - 'pyproject.toml'
       - 'pixi.toml'
 
   pull_request:
-    branches: [ main, master, develop ]
+    branches: "*"
     paths:
       - 'requirements.txt'
       - 'pyproject.toml'
