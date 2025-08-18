@@ -1,5 +1,5 @@
 ﻿name: Code Format Check
-run-name: Running code format checks with Ruff 🔍
+run-name: Running code format checks with Ruff
 
 on:
   push:
@@ -11,6 +11,19 @@ on:
     paths:
       - '**.py'
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      debug:
+        description: 'Enable debug mode'
+        required: false
+        type: boolean
 
 jobs:
   ruff-format:
@@ -91,9 +104,9 @@ jobs:
           
           # Lint check result  
           if [ "${{ steps.lint-check.outcome }}" = "success" ]; then
-            echo "| 🔍 Lint Check | ✅ PASSED | No linting issues found |" >> $GITHUB_STEP_SUMMARY
+            echo "| Lint Check | ✅ PASSED | No linting issues found |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "| 🔍 Lint Check | ❌ FAILED | Linting issues found |" >> $GITHUB_STEP_SUMMARY
+            echo "| Lint Check | ❌ FAILED | Linting issues found |" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
