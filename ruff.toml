@@ -1,0 +1,12 @@
+# Basic Ruff configuration
+target-version = "py39"
+
+[lint]
+select = ["E", "F", "W", "Q", "UP", "I", "N"]
+
+# Exclude common directories
+exclude = [
+    ".git",
+    ".pixi",
+    "__pycache__",
+]
