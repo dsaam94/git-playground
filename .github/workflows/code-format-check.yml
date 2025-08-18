@@ -1,5 +1,6 @@
 ﻿name: Code Format Check
 run-name: Running code format checks with Ruff 🔍
+
 on:
   push:
     branches: "*"
@@ -9,12 +10,13 @@ on:
     branches: "*"
     paths:
       - '**.py'
+  workflow_dispatch:
 
 jobs:
   ruff:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/ruff-action@v3
+      - uses: astral-sh/ruff-action@v1
         with:
-          args: "format --check --diff"
+          args: format --check --diff
