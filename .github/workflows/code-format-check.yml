@@ -51,14 +51,14 @@ jobs:
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           
           # Show which files need formatting
-          echo "# Files that shoul be reformatted:" >> $GITHUB_STEP_SUMMARY
-          ruff format --check . 2>&1 | grep "would reformat" | sed 's/^/# /' >> $GITHUB_STEP_SUMMARY || echo "# (Error getting file list)" >> $GITHUB_STEP_SUMMARY
+          echo "# Files that should be reformatted:" >> $GITHUB_STEP_SUMMARY
+          ruff format --check . 2>&1 | grep "should reformat" | sed 's/^/# /' >> $GITHUB_STEP_SUMMARY
           
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔍 Detailed diff of required changes:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
-          ruff format --check --diff . >> $GITHUB_STEP_SUMMARY 2>&1 || echo "Error generating diff" >> $GITHUB_STEP_SUMMARY
+          ruff format --check --diff . >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Detailed Lint Analysis (if lint check failed)
@@ -72,37 +72,6 @@ jobs:
           ruff check . >> $GITHUB_STEP_SUMMARY 2>&1 || echo "Error getting lint details" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
-      - name: Show fix instructions
-        if: steps.format-check.outcome == 'failure' || steps.lint-check.outcome == 'failure'
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 🛠️ How to Fix These Issues" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Run these commands locally to fix the issues:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "# Install ruff if you haven't already" >> $GITHUB_STEP_SUMMARY
-          echo "pip install ruff" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.format-check.outcome }}" = "failure" ]; then
-            echo "# Fix formatting issues automatically" >> $GITHUB_STEP_SUMMARY
-            echo "ruff format ." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-          if [ "${{ steps.lint-check.outcome }}" = "failure" ]; then
-            echo "# Fix auto-fixable linting issues" >> $GITHUB_STEP_SUMMARY
-            echo "ruff check --fix ." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "# Check your changes" >> $GITHUB_STEP_SUMMARY
-          echo "ruff format --check ." >> $GITHUB_STEP_SUMMARY
-          echo "ruff check ." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# Commit and push" >> $GITHUB_STEP_SUMMARY
-          echo "git add ." >> $GITHUB_STEP_SUMMARY
-          echo 'git commit -m "Fix code formatting and linting issues"' >> $GITHUB_STEP_SUMMARY
-          echo "git push" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Create final summary
         if: always()
