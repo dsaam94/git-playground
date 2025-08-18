@@ -1,4 +1,6 @@
 ﻿from pathlib import Path
+API_KEY = "1234567890"
+
 class TestFormatting:
     def test_format_for_my_ugliest_function(self):
         return (
