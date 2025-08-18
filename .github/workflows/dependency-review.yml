@@ -53,7 +53,6 @@ jobs:
   pixi-vulnerability-check:
     name: Pixi Dependencies Vulnerability Check
     runs-on: ubuntu-latest
-    if: hashFiles('pixi.lock') != ''
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
