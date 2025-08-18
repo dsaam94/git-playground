@@ -58,16 +58,16 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Detailed diff of required changes:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
-          ruff format --check --diff >> $GITHUB_STEP_SUMMARY
+          ruff format --check --diff >> $GITHUB_STEP_SUMMARY || echo "Error getting diff details" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Detailed Lint Analysis (if lint check failed)
         if: steps.lint-check.outcome == 'failure'
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## ⚠️ Lint Check Failed" >> $GITHUB_STEP_SUMMARY
+          echo "## Lint Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Linting issues found:" >> $GITHUB_STEP_SUMMARY
+          echo "### Linting issues found:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           ruff check . >> $GITHUB_STEP_SUMMARY 2>&1 || echo "Error getting lint details" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -77,16 +77,16 @@ jobs:
         if: always()
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📊 Check Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Check Results Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check Type | Status | Description |" >> $GITHUB_STEP_SUMMARY
           echo "|------------|--------|-------------|" >> $GITHUB_STEP_SUMMARY
           
           # Format check result
           if [ "${{ steps.format-check.outcome }}" = "success" ]; then
-            echo "| 🎨 Format Check | ✅ PASSED | Code is properly formatted |" >> $GITHUB_STEP_SUMMARY
+            echo "|Format Check | ✅ PASSED | Code is properly formatted |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "| 🎨 Format Check | ❌ FAILED | Code needs formatting |" >> $GITHUB_STEP_SUMMARY
+            echo "|Format Check | ❌ FAILED | Code needs formatting |" >> $GITHUB_STEP_SUMMARY
           fi
           
           # Lint check result  
@@ -100,9 +100,9 @@ jobs:
           
           # Overall status
           if [ "${{ steps.format-check.outcome }}" = "success" ] && [ "${{ steps.lint-check.outcome }}" = "success" ]; then
-            echo "### 🎉 Overall Status: ALL CHECKS PASSED!" >> $GITHUB_STEP_SUMMARY
+            echo "### Overall Status: ALL CHECKS PASSED!" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### ⚠️ Overall Status: FIXES NEEDED" >> $GITHUB_STEP_SUMMARY
+            echo "### Overall Status: FIXES NEEDED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Please review the detailed information above and follow the fix instructions." >> $GITHUB_STEP_SUMMARY
           fi
