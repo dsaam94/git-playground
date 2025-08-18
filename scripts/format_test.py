@@ -1,5 +1,6 @@
-﻿from pathlib import Path
-class TestFormatting:
+﻿class TestFormatting:
+    from pathlib import Path
+
     def test_format_for_my_ugliest_function(self):
         return (
             Path(__file__).parent.parent.parent
