@@ -8,6 +8,7 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 python = "3.11.*"
 knime-extension = ">=5.6.0,<6"
 knime-python-base = "*"
+ruff = ">=0.12.9,<0.13"
 
 [feature.build.dependencies]
 python = "3.9.*"
