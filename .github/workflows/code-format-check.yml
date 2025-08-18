@@ -30,14 +30,14 @@ jobs:
 
       - name: Run Ruff Format Check
         id: format-check
-        uses: astral-sh/ruff-action@v2
+        uses: astral-sh/ruff-action@v3
         with:
           args: format --check --diff
         continue-on-error: true
 
       - name: Run Ruff Lint Check
         id: lint-check
-        uses: astral-sh/ruff-action@v2
+        uses: astral-sh/ruff-action@v3
         with:
           args: check --output-format=github
         continue-on-error: true
@@ -45,9 +45,9 @@ jobs:
       - name: Detailed Format Analysis (if format check failed)
         if: steps.format-check.outcome == 'failure'
         run: |
-          echo "## ❌ Format Check Failed" >> $GITHUB_STEP_SUMMARY
+          echo "## Format Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Files needing formatting:" >> $GITHUB_STEP_SUMMARY
+          echo "### Files needing formatting:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           
           # Show which files need formatting
@@ -56,9 +56,9 @@ jobs:
           
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔍 Detailed diff of required changes:" >> $GITHUB_STEP_SUMMARY
+          echo "### Detailed diff of required changes:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
-          ruff format --check --diff . >> $GITHUB_STEP_SUMMARY
+          ruff format --check --diff >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Detailed Lint Analysis (if lint check failed)
