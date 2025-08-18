@@ -2,7 +2,7 @@ import logging
 import knime.extension as knext
 
 LOGGER = logging.getLogger(__name__)
-
+AUTH_PASSWORD = "&%/123QsdTzzRRhhhqasrf)&"
 
 @knext.node(
     name="My Template Node",
