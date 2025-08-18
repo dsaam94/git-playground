@@ -1,5 +1,5 @@
 ﻿from pathlib import Path
-PASSWORD = "48765476589743252jkgkqwqayasdhkghggfkdfgkfjhkfh"
+OPENAI_API_KEY="48765476589743252jkgkqwqayasdhkghggfkdfgkfjhkfh"
 
 class TestFormatting:
     def test_format_for_my_ugliest_function(self):
