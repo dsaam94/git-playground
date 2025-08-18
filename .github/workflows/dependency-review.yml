@@ -10,6 +10,10 @@ on:
     - cron: '21 6 * * 1'
   push:
     branches: [ "main" ]
+  workflow_run:
+    workflows: ["Secrets Detection"]
+    branches: ["*"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       debug:
@@ -29,6 +33,7 @@ permissions:
 jobs:
   dependency-review:
     name: Dependency Review
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -44,6 +49,7 @@ jobs:
 
   pixi-packages-check:
     name: Pixi Dependencies Vulnerability Check
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
