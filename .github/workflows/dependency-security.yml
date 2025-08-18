@@ -26,7 +26,7 @@ jobs:
   pixi-security-scan:
     name: Pixi Security Scan
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
