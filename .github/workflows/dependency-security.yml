@@ -1,0 +1,161 @@
+name: Dependency Security Scan
+run-name: Scanning dependencies for security vulnerabilities 📦
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - 'pixi.toml'
+
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - 'pixi.toml'
+
+  workflow_dispatch:
+  schedule:
+    # Run daily at 4 AM UTC
+    - cron: '0 4 * * *'
+
+jobs:
+
+  pixi-security-scan:
+    name: Pixi Security Scan
+    runs-on: ubuntu-latest
+    if: contains(fromJson('["pixi.toml"]'), github.event.head_commit.modified[0]) || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || hashFiles('pixi.toml') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: latest
+          cache: true
+          #this is needed in order to avoid exceeding the 10GB size limit in Github actions
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Install dependencies
+        run: pixi install
+        continue-on-error: true
+
+      - name: Run Pixi security scan
+        run: |
+          echo "=== Pixi Security Scanning ==="
+          
+          # 1. List packages for reference
+          echo "Listing all packages..."
+          pixi list --json > pixi-dependencies.json || true
+          echo "Pixi dependencies:" && cat pixi-dependencies.json || true
+          
+          # 2. Note: OSV-Scanner will handle pixi.lock in the separate osv-scanner job
+          echo "Note: pixi.lock vulnerability scanning handled by dedicated OSV-Scanner job"
+          
+          
+          # 3. Extract package names and versions for manual security check
+          echo "Extracting package information for security analysis..."
+          if [ -f "pixi-dependencies.json" ]; then
+            python3 -c "
+            import json
+            import sys
+            try:
+                with open('pixi-dependencies.json', 'r') as f:
+                    data = json.load(f)
+                
+                print('=== SECURITY REVIEW NEEDED ===')
+                print('Packages to manually review for vulnerabilities:')
+                
+                # Handle different pixi list output formats
+                if isinstance(data, dict):
+                    for env_name, env_data in data.items():
+                        if isinstance(env_data, dict) and 'packages' in env_data:
+                            print(f'Environment: {env_name}')
+                            for pkg_name, pkg_info in env_data['packages'].items():
+                                version = pkg_info.get('version', 'unknown') if isinstance(pkg_info, dict) else pkg_info
+                                print(f'  - {pkg_name}=={version}')
+                elif isinstance(data, list):
+                    for pkg in data:
+                        if isinstance(pkg, dict):
+                            name = pkg.get('name', 'unknown')
+                            version = pkg.get('version', 'unknown')
+                            print(f'  - {name}=={version}')
+                
+                print('=== END SECURITY REVIEW ===')
+            except Exception as e:
+                print(f'Error parsing pixi dependencies: {e}')
+            " || echo "Failed to parse package information"
+          fi
+        continue-on-error: true
+
+      - name: Upload Pixi results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pixi-results
+          path: pixi-dependencies.json
+
+  osv-scanner:
+    name: OSV Scanner (All Ecosystems)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action@v1.7.4
+        with:
+          scan-args: |-
+            -r
+            --skip-git
+            ./
+        continue-on-error: true
+        # Note: This scans ALL supported ecosystems including:
+        # - npm (package.json, package-lock.json)
+        # - pip (requirements.txt, pyproject.toml) 
+        # - pixi (pixi.lock)
+        # - go (go.mod, go.sum)
+        # - rust (Cargo.toml, Cargo.lock)
+        # - maven, gradle, etc.
+
+  github-advisory:
+    name: GitHub Advisory Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: GitHub Security Advisory
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, GPL-3.0
+
+  dependency-summary:
+    name: Dependency Security Summary
+    runs-on: ubuntu-latest
+    needs: [pixi-security-scan, osv-scanner, github-advisory]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+
+      - name: Create dependency security summary
+        run: |
+          echo "## 📦 Dependency Security Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Tool | Status | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Pixi Security Scan | ${{ needs.pixi-security-scan.result }} | Pixi/conda package inventory and analysis |" >> $GITHUB_STEP_SUMMARY
+          echo "| OSV-Scanner | ${{ needs.osv-scanner.result }} | Multi-ecosystem vulnerability scanner (includes pixi) |" >> $GITHUB_STEP_SUMMARY
+          echo "| GitHub Advisory | ${{ needs.github-advisory.result }} | GitHub's security advisory database |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Security Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "- Update vulnerable dependencies immediately" >> $GITHUB_STEP_SUMMARY
+          echo "- Use dependency pinning for security" >> $GITHUB_STEP_SUMMARY
+          echo "- Enable Dependabot for automated updates" >> $GITHUB_STEP_SUMMARY
+          echo "- Regular security audits of dependencies" >> $GITHUB_STEP_SUMMARY
