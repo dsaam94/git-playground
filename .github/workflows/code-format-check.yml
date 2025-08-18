@@ -22,7 +22,7 @@ jobs:
 
       - name: List Python files to be checked
         run: |
-          echo "## 📁 Python files in repository:" >> $GITHUB_STEP_SUMMARY
+          echo "## Python files in repository:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           find . -name "*.py" -not -path "./.git/*" -not -path "./.pixi/*" | sort >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -51,7 +51,7 @@ jobs:
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           
           # Show which files need formatting
-          echo "# Files that would be reformatted:" >> $GITHUB_STEP_SUMMARY
+          echo "# Files that shoul be reformatted:" >> $GITHUB_STEP_SUMMARY
           ruff format --check . 2>&1 | grep "would reformat" | sed 's/^/# /' >> $GITHUB_STEP_SUMMARY || echo "# (Error getting file list)" >> $GITHUB_STEP_SUMMARY
           
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
