@@ -12,9 +12,6 @@ class TestFormatting:
             / "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
         )
 
-    def empty_function(self):
-        pass
-
     def test_path_construction_with_bad_formatting(self):
         expected_path = (
             Path(__file__).parent.parent
