@@ -1,10 +1,17 @@
 ﻿from pathlib import Path
-OPENAI_API_KEY="48765476589743252jkgkqwqayasdhkghggfkdfgkfjhkfh"
+
+OPENAI_API_KEY = "48765476589743252jkgkqwqayasdhkghggfkdfgkfjhkfh"
+
 
 class TestFormatting:
     def test_format_for_my_ugliest_function(self):
         return (
-            Path(__file__).parent.parent.parent/ "data"/ "golden_tables"/ "DateType_Date&Time_Alignment_GT"/ "WEEK"/ "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
+            Path(__file__).parent.parent.parent
+            / "data"
+            / "golden_tables"
+            / "DateType_Date&Time_Alignment_GT"
+            / "WEEK"
+            / "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
         )
 
     def empty_function(self):
@@ -12,7 +19,12 @@ class TestFormatting:
 
     def test_path_construction_with_bad_formatting(self):
         expected_path = (
-            Path(__file__).parent.parent / ".github"/ "golden_tables"/ "DateType_Date&Time_Alignment_GT"/ "WEEK"/ "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
+            Path(__file__).parent.parent
+            / ".github"
+            / "golden_tables"
+            / "DateType_Date&Time_Alignment_GT"
+            / "WEEK"
+            / "DateType_Replacement_WEEK_Date&Time_Alignment_Output.csv"
         )
 
         result = self.test_format_for_my_ugliest_function()
