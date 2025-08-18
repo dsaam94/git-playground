@@ -26,7 +26,7 @@ jobs:
   pixi-security-scan:
     name: Pixi Security Scan
     runs-on: ubuntu-latest
-    if: contains(fromJson('["pixi.toml"]'), github.event.head_commit.modified[0]) || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || hashFiles('pixi.toml') != ''
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
