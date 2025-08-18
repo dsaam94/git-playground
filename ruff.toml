@@ -1,0 +1,21 @@
+# Basic Ruff configuration for simple linting
+line-length = 88
+target-version = "py39"
+
+# Essential linting rules only
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings  
+    "F",   # Pyflakes
+]
+
+# Ignore line length (handled by formatter)
+ignore = ["E501"]
+
+# Exclude common directories
+exclude = [
+    ".git",
+    ".pixi", 
+    "__pycache__",
+    "*.pyc",
+]
