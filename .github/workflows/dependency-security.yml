@@ -83,8 +83,6 @@ jobs:
                             name = pkg.get('name', 'unknown')
                             version = pkg.get('version', 'unknown')
                             print(f'  - {name}=={version}')
-                
-                print('=== END SECURITY REVIEW ===')
             except Exception as e:
                 print(f'Error parsing pixi dependencies: {e}')
             " || echo "Failed to parse package information"
@@ -101,12 +99,13 @@ jobs:
   osv-scanner:
     name: OSV Scanner (All Ecosystems)
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run OSV-Scanner
-        uses: google/osv-scanner-action@v1.7.4
+        uses: google/osv-scanner-action@v2.2.1
         with:
           scan-args: |-
             -r
