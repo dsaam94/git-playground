@@ -6,8 +6,9 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 
 [dependencies]
 python = "3.11.*"
-knime-extension = "*"
+knime-extension = ">=5.6.0,<6"
 knime-python-base = "*"
+knime-python-scripting = ">=5.6.0,<6"
 
 [feature.build.dependencies]
 python = "3.9.*"
