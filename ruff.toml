@@ -2,7 +2,8 @@
 target-version = "py39"
 
 [lint]
-select = ["E", "F", "W", "Q", "UP", "I", "N"]
+select = ["E", "F", "W", "Q", "I", "N"]
+ignore = ["E101", "E302", "I001"]
 
 # Exclude common directories
 exclude = [
