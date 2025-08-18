@@ -8,7 +8,7 @@ on:
   schedule:
     # Run weekly on Sundays at 2 AM UTC
     - cron: '0 2 * * 0'
-
+# Requires setting up Advanced security settings including enabling the Dependency graph option.
 jobs:
   dependency-review:
     name: Dependency Review
