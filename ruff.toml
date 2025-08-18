@@ -1,9 +1,8 @@
 # Basic Ruff configuration
 target-version = "py39"
 line-length = 88
+exclude = ["scripts/format_test.py"]
 
 [lint]
 select = ["E", "F", "W"]
-ignore = ["F501"]
-
-exclude = ["scripts/format_test.py"]
+ignore = ["E501"]
