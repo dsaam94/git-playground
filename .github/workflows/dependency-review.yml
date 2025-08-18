@@ -85,30 +85,7 @@ jobs:
           
           # Count packages and environments
           if [ -f "pixi-packages.json" ]; then
-            python3 -c "
-            import json
-            import sys
-            
-            try:
-                with open('pixi-packages.json', 'r') as f:
-                    data = json.load(f)
-                
-                total_packages = 0
-                environments = []
-                
-                if isinstance(data, dict):
-                    for env_name, env_data in data.items():
-                        environments.append(env_name)
-                        if isinstance(env_data, dict) and 'packages' in env_data:
-                            total_packages += len(env_data['packages'])
-                
-                print(f'- **Total packages:** {total_packages}')
-                print(f'- **Environments:** {environments}')
-                print(f'- **Configuration file:** pixi.toml')
-                
-            except Exception as e:
-                print(f'Error analyzing packages: {e}')
-            " >> $GITHUB_STEP_SUMMARY || echo "Could not analyze pixi packages" >> $GITHUB_STEP_SUMMARY
+            python3 scripts/analyze_pixi_packages.py >> $GITHUB_STEP_SUMMARY || echo "Could not analyze pixi packages" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
 
