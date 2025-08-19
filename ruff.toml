@@ -5,4 +5,4 @@ exclude = ["scripts/format_test.py"]
 
 [lint]
 select = ["E", "F", "W"]
-ignore = ["E501"]
+#ignore = ["E501"]
