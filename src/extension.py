@@ -1,6 +1,7 @@
 import logging
 import knime.extension as knext
 
+API_KEY = "GDGDgfHFhfTd##1234567890&&$&%"
 LOGGER = logging.getLogger(__name__)
 
 
