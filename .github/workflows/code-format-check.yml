@@ -4,12 +4,8 @@ run-name: Running code format checks with Ruff
 on:
   push:
     branches: "*"
-    paths:
-      - '**.py'
   pull_request:
     branches: "*"
-    paths:
-      - '**.py'
   workflow_dispatch:
     inputs:
       debug:
