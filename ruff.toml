@@ -4,5 +4,5 @@ line-length = 88
 exclude = ["scripts/format_test.py"]
 
 [lint]
-select = ["E", "F", "W"]
+select = ["E", "F", "W", "D"]
 #ignore = ["E501"]
