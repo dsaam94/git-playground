@@ -29,6 +29,68 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
+      - name: Check snake_case naming for Python files and folders
+        id: naming-check
+        run: |
+          violations=0
+
+          bad_files="$(mktemp)"
+          bad_dirs="$(mktemp)"
+
+          while IFS= read -r file; do
+            base_name="$(basename "$file")"
+            dir_path="$(dirname "$file" | sed 's#^\./##')"
+
+            if ! [[ "$base_name" =~ ^[a-z][a-z0-9_]*\.py$ ]]; then
+              echo "$file" >> "$bad_files"
+              violations=1
+            fi
+
+            IFS='/' read -r -a parts <<< "$dir_path"
+            for part in "${parts[@]}"; do
+              [ -z "$part" ] && continue
+              case "$part" in
+                .git|.github|.pixi|.venv|venv|__pycache__|site-packages|node_modules|dist|build)
+                  continue ;;
+              esac
+              if ! [[ "$part" =~ ^[a-z][a-z0-9_]*$ ]]; then
+                echo "$part [$file]" >> "$bad_dirs"
+                violations=1
+              fi
+            done
+          done < <(find . -type f -name "*.py" \
+                    -not -path "./.git/*" \
+                    -not -path "./.github/*" \
+                    -not -path "./.pixi/*" \
+                    -not -path "./venv/*" \
+                    -not -path "./.venv/*" \
+                    -not -path "*/__pycache__/*")
+
+          if [ -s "$bad_files" ] || [ -s "$bad_dirs" ]; then
+            echo "## Snake_case naming check FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            if [ -s "$bad_files" ]; then
+              echo "### Non-snake_case Python file names:" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              sort -u "$bad_files" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ -s "$bad_dirs" ]; then
+              echo "### Non-snake_case directory names (with example file path):" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              sort -u "$bad_dirs" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            rm -f "$bad_files" "$bad_dirs"
+            exit 1
+          else
+            echo "## Snake_case naming check PASSED" >> $GITHUB_STEP_SUMMARY
+            rm -f "$bad_files" "$bad_dirs"
+          fi
+        continue-on-error: true
+
       - name: Run Ruff Format Check
         id: format-check
         uses: astral-sh/ruff-action@v3
@@ -97,10 +159,17 @@ jobs:
             echo "| Lint Check | ❌ FAILED | Linting issues found |" >> $GITHUB_STEP_SUMMARY
           fi
           
+          # Naming check result
+          if [ "${{ steps.naming-check.outcome }}" = "success" ]; then
+            echo "| Naming Check | ✅ PASSED | All Python files and folders are snake_case |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Naming Check | ❌ FAILED | Non-snake_case Python file or folder names found |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Overall status
-          if [ "${{ steps.format-check.outcome }}" = "success" ] && [ "${{ steps.lint-check.outcome }}" = "success" ]; then
+          if [ "${{ steps.format-check.outcome }}" = "success" ] && [ "${{ steps.lint-check.outcome }}" = "success" ] && [ "${{ steps.naming-check.outcome }}" = "success" ]; then
             echo "### Overall Status: ALL CHECKS PASSED!" >> $GITHUB_STEP_SUMMARY
           else
             echo "### Overall Status: FIXES NEEDED" >> $GITHUB_STEP_SUMMARY
@@ -109,7 +178,7 @@ jobs:
           fi
 
       - name: Fail job if any checks failed
-        if: steps.format-check.outcome == 'failure' || steps.lint-check.outcome == 'failure'
+        if: steps.format-check.outcome == 'failure' || steps.lint-check.outcome == 'failure' || steps.naming-check.outcome == 'failure'
         run: |
           echo "❌ Code quality checks failed. Please review the summary above for details."
           exit 1
