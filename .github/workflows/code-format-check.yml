@@ -1,5 +1,5 @@
 ﻿name: Code Format Check
-run-name: Running code format checks with Ruff
+run-name: Running code quality checks
 
 on:
   push:
@@ -7,11 +7,7 @@ on:
   pull_request:
     branches: "*"
   workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Enable debug mode'
-        required: false
-        type: boolean
+  # set ACTIONS_STEP_DEBUG to true in Repo Settings -> Secrets and Variables -> Actions -> Variables -> "New Repository Variable"
 
 jobs:
   ruff-format:
@@ -25,12 +21,13 @@ jobs:
         run: |
           echo "## Python files in repository:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          # adapt the following command to exclude/include any files and folders
           find . -name "*.py" -not -path "./.git/*" -not -path "./.pixi/*" | sort >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-      - name: Check snake_case naming for Python files and folders
-        id: naming-check
+      - name: Check snake case naming style for Python files and folders
+        id: snake-case-naming-check
         run: |
           violations=0
 
@@ -67,10 +64,10 @@ jobs:
                     -not -path "*/__pycache__/*")
 
           if [ -s "$bad_files" ] || [ -s "$bad_dirs" ]; then
-            echo "## Snake_case naming check FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "## Snake case naming check FAILED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             if [ -s "$bad_files" ]; then
-              echo "### Non-snake_case Python file names:" >> $GITHUB_STEP_SUMMARY
+              echo "### Python file names that are not snake case:" >> $GITHUB_STEP_SUMMARY
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
               sort -u "$bad_files" >> $GITHUB_STEP_SUMMARY
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -86,7 +83,7 @@ jobs:
             rm -f "$bad_files" "$bad_dirs"
             exit 1
           else
-            echo "## Snake_case naming check PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "## Snake case naming check PASSED" >> $GITHUB_STEP_SUMMARY
             rm -f "$bad_files" "$bad_dirs"
           fi
         continue-on-error: true
@@ -160,16 +157,16 @@ jobs:
           fi
           
           # Naming check result
-          if [ "${{ steps.naming-check.outcome }}" = "success" ]; then
-            echo "| Naming Check | ✅ PASSED | All Python files and folders are snake_case |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.snake-case-naming-check.outcome }}" = "success" ]; then
+            echo "| Naming Check | ✅ PASSED | All Python files and folders are snake case |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "| Naming Check | ❌ FAILED | Non-snake_case Python file or folder names found |" >> $GITHUB_STEP_SUMMARY
+            echo "| Naming Check | ❌ FAILED | Non-snake case Python file or folder names found |" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Overall status
-          if [ "${{ steps.format-check.outcome }}" = "success" ] && [ "${{ steps.lint-check.outcome }}" = "success" ] && [ "${{ steps.naming-check.outcome }}" = "success" ]; then
+          if [ "${{ steps.format-check.outcome }}" = "success" ] && [ "${{ steps.lint-check.outcome }}" = "success" ] && [ "${{ steps.snake-case-naming-check.outcome }}" = "success" ]; then
             echo "### Overall Status: ALL CHECKS PASSED!" >> $GITHUB_STEP_SUMMARY
           else
             echo "### Overall Status: FIXES NEEDED" >> $GITHUB_STEP_SUMMARY
@@ -178,7 +175,7 @@ jobs:
           fi
 
       - name: Fail job if any checks failed
-        if: steps.format-check.outcome == 'failure' || steps.lint-check.outcome == 'failure' || steps.naming-check.outcome == 'failure'
+        if: steps.format-check.outcome == 'failure' || steps.lint-check.outcome == 'failure' || steps.snake-case-naming-check.outcome == 'failure'
         run: |
           echo "❌ Code quality checks failed. Please review the summary above for details."
           exit 1
