@@ -19,7 +19,7 @@ jobs:
   build:
     name: Run pixi build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_build == 'true' || github.event.inputs.run_build == true }}
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_build == 'true' }}
     env:
       BUILD_DEST: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dest) || 'local-update-site' }}
     steps:
