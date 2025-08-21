@@ -1,0 +1,42 @@
+name: Pixi Build
+
+on:
+  pull_request:
+    branches: "*"
+  workflow_dispatch:
+    inputs:
+      run_build:
+        description: "Run build job"
+        required: true
+        type: boolean
+        default: false
+      dest:
+        description: "Destination folder name for build output"
+        required: false
+        default: "local-update-site"
+
+jobs:
+  build:
+    name: Run pixi build
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_build == 'true' || github.event.inputs.run_build == true }}
+    env:
+      BUILD_DEST: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dest) || 'local-update-site' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.8.2
+
+      - name: Build with Pixi
+        run: pixi run build "$BUILD_DEST"
+
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixi-build-${{ github.run_id }}
+          path: ${{ env.BUILD_DEST }}
+
+

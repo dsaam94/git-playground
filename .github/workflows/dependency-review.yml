@@ -10,17 +10,14 @@ on:
     - cron: '21 6 * * 1'
   push:
     branches: [ "main" ]
-  workflow_run:
-    workflows: ["Secrets Detection"]
-    branches: ["*"]
-    types: [completed]
   workflow_dispatch:
     inputs:
       debug:
         description: 'Enable debug mode'
         required: false
         type: boolean
-              
+
+# review the right set of permissions        
 permissions:
   # Require writing security events to upload SARIF file to security tab
   security-events: write
@@ -31,9 +28,8 @@ permissions:
 
 # Requires setting up Advanced security settings including enabling the Dependency graph option.
 jobs:
-  dependency-review:
-    name: Dependency Review
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'merge_group')) }}
+  dependency-scanner:
+    name: Dependency Scanner
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -49,7 +45,6 @@ jobs:
 
   pixi-packages-check:
     name: Pixi Dependencies Vulnerability Check
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'merge_group')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -65,7 +60,7 @@ jobs:
         run: pixi install
         continue-on-error: true
 
-      - name: List and analyze Pixi packages
+      - name: List Pixi packages
         run: |
           echo "## 📦 Pixi Dependencies Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -76,11 +71,11 @@ jobs:
           
           # Count packages and environments
           if [ -f "pixi-packages.json" ]; then
-            python3 scripts/analyze_pixi_packages.py >> $GITHUB_STEP_SUMMARY || echo "Could not analyze pixi packages" >> $GITHUB_STEP_SUMMARY
+            python3 scripts/analyze_pixi_packages.py >> $GITHUB_STEP_SUMMARY || echo "Could not fetch pixi packages" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
 
-      - name: Upload Pixi analysis results
+      - name: Upload Pixi results
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -90,7 +85,7 @@ jobs:
   security-summary:
     name: Security Review Summary
     runs-on: ubuntu-latest
-    needs: [dependency-review, pixi-packages-check]
+    needs: [dependency-scanner, pixi-packages-check]
     if: always()
     steps:
       - name: Create security summary
@@ -99,6 +94,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Tool | Status | Description |" >> $GITHUB_STEP_SUMMARY
           echo "|------|--------|-------------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Dependency Review | ${{ needs.dependency-review.result }} | GitHub's dependency review for PRs |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Review | ${{ needs.dependency-scanner.result }} | GitHub's dependency review for PRs |" >> $GITHUB_STEP_SUMMARY
           echo "| Pixi Security Check | ${{ needs.pixi-packages-check.result }} | Pixi/conda package analysis |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
