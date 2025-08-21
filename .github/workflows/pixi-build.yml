@@ -2,7 +2,7 @@ name: Extension Bundling
 
 on:
   pull_request:
-    branches: "*"
+    branches: [ "main" ]
   workflow_dispatch:
     inputs:
         logLevel:
@@ -14,17 +14,13 @@ on:
             - info
             - warning
             - debug
-        run_build:
-            description: "Run build job"
-            required: true
-            type: boolean
-            default: false
+
 
 jobs:
   build:
     name: Bundle extension for update site
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_build == 'true' }}
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,7 +35,7 @@ jobs:
         if: ${{ success() && github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v4
         with:
-          name: extensionartifacts-for-update-site-${{ github.run_id }}
+          name: extension-artifacts-for-update-site-${{ github.run_id }}
           path: local-update-site
 
 
@@ -57,14 +53,12 @@ jobs:
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Event | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Log Level | ${{ github.event.inputs.logLevel || 'n/a' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Manual Run - run_build | ${{ github.event.inputs.run_build || 'n/a' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build Job Result | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Ref | ${{ github.ref }} |" >> $GITHUB_STEP_SUMMARY
           echo "| SHA | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "Artifact (only on manual runs): extensionartifacts-for-update-site-${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+            echo "Artifact (only on manual runs): extension-artifacts-for-update-site-${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "No artifact uploaded for non-manual runs." >> $GITHUB_STEP_SUMMARY
           fi
